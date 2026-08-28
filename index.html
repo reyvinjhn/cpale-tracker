@@ -19,7 +19,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Replace the values below with the keys you copied from the Firebase console
     const firebaseConfig = {
@@ -37,7 +37,7 @@
     // Expose the initialized tools so React can use them
     window.firebaseApp = app;
     window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged, signInWithCustomToken };
-    window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc };
+    window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc, onSnapshot };
 </script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans">
