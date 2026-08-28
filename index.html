@@ -17,15 +17,28 @@
 
     <!-- Firebase SDK (Version 11.6.1 as required) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Expose Firebase modules to the global window object so React can use them
-        window.firebaseApp = initializeApp;
-        window.firebaseAuth = { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken };
-        window.firebaseDb = { getFirestore, doc, getDoc, setDoc };
-    </script>
+    // Replace the values below with the keys you copied from the Firebase console
+    const firebaseConfig = {
+        apiKey: "AIzaSyCGCtGW2s3ixHGSjFn8fWGUNAVvY-bBi1s",
+        authDomain: "cpale-tracker.firebaseapp.com",
+        projectId: "cpale-tracker",
+        storageBucket: "cpale-tracker.appspot.com",
+        messagingSenderId: "100097586893",
+        appId: "1:100097586893:web:cbfae0b7b0d9e0b7e61b84"
+    };
+
+    // Initialize the app with your keys
+    const app = initializeApp(firebaseConfig);
+
+    // Expose the initialized tools so React can use them
+    window.firebaseApp = app;
+    window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged, signInWithCustomToken };
+    window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc };
+</script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans">
     <div id="root"></div>
