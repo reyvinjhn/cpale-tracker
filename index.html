@@ -178,13 +178,17 @@
 
         const App = () => {
             const [activeSubject, setActiveSubject] = useState('FAR');
-            const [subtopicStatus, setSubtopicStatus] = useState({});
             const [expandedTopics, setExpandedTopics] = useState({});
+            
+            // Start with localStorage data so it doesn't blink empty on refresh
+            const [subtopicStatus, setSubtopicStatus] = useState(() => {
+                const saved = localStorage.getItem('cpaleProgressLocal');
+                return saved ? JSON.parse(saved) : {};
+            });
             
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
-            const [appId, setAppId] = useState('cpale-tracker-default');
             const [authError, setAuthError] = useState(null);
 
             useEffect(() => {
@@ -211,19 +215,18 @@
                 }
             }, []);
 
+            // Wait for both DB and User before listening to prevent overwrite races
             useEffect(() => {
-                if (!db) {
-                    const saved = localStorage.getItem('cpaleProgressLocal');
-                    if (saved) setSubtopicStatus(JSON.parse(saved));
-                    return;
-                }
+                if (!db || !user) return;
 
                 setIsSyncing(true);
                 const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
                 
                 const unsubscribeSnapshot = window.firebaseDb.onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
-                        setSubtopicStatus(docSnap.data().status || {});
+                        const serverStatus = docSnap.data().status || {};
+                        setSubtopicStatus(serverStatus);
+                        localStorage.setItem('cpaleProgressLocal', JSON.stringify(serverStatus));
                     }
                     setIsSyncing(false);
                 }, (error) => {
@@ -232,7 +235,7 @@
                 });
 
                 return () => unsubscribeSnapshot();
-            }, [db]);
+            }, [db, user]);
 
             useEffect(() => {
                 if (syllabusData[activeSubject] && syllabusData[activeSubject].topics.length > 0) {
@@ -240,32 +243,34 @@
                 }
             }, [activeSubject]);
 
-            const setMasteryStatus = async (topicId, subtopicIndex, level) => {
+            // Functional state update prevents rapid clicks from overwriting
+            const setMasteryStatus = (topicId, subtopicIndex, level) => {
                 const key = `${topicId}-${subtopicIndex}`;
-                // If clicking the same level, toggle it off (reset to 0%)
-                const isCurrent = subtopicStatus[key] === level || (subtopicStatus[key] === true && level === 'mastered');
-                const newStatus = { ...subtopicStatus };
                 
-                if (isCurrent) {
-                    delete newStatus[key];
-                } else {
-                    newStatus[key] = level;
-                }
-                
-                setSubtopicStatus(newStatus);
-                localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
-
-                if (db) {
-                    setIsSyncing(true);
-                    try {
-                        const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
-                        await window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true });
-                    } catch (error) {
-                        console.error("Error saving progress:", error);
-                    } finally {
-                        setIsSyncing(false);
+                setSubtopicStatus(prevStatus => {
+                    const isCurrent = prevStatus[key] === level || (prevStatus[key] === true && level === 'mastered');
+                    const newStatus = { ...prevStatus };
+                    
+                    if (isCurrent) {
+                        delete newStatus[key];
+                    } else {
+                        newStatus[key] = level;
                     }
-                }
+                    
+                    // Save locally immediately
+                    localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
+
+                    // Push to cloud without awaiting to prevent UI freezing
+                    if (db && user) {
+                        setIsSyncing(true);
+                        const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
+                        window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true })
+                            .catch(error => console.error("Error saving progress:", error))
+                            .finally(() => setIsSyncing(false));
+                    }
+                    
+                    return newStatus;
+                });
             };
 
             const toggleTopicExpand = (topicId) => {
@@ -285,7 +290,6 @@
                     } else if (status === 'knowledgeable') {
                         earnedWeight += subtopicWeightShare * 0.5;
                     }
-                    // 'weak' or unselected adds 0
                 });
 
                 return {
