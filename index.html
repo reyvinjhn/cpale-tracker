@@ -58,7 +58,7 @@
                 title: "Financial Accounting and Reporting (FAR)",
                 items: 70,
                 topics: [
-                    { id: "far-1", name: "Non-financial Assets (PPE, Intangibles, Inv. Prop., Bio. Assets)", weight: 20.00, items: 14, subtopics: ["PPE (PAS 16): Initial measurement", "PPE (PAS 16): Subsequent measurement (cost vs revaluation model)", "PPE (PAS 16): Depreciation methods and computation", "PPE (PAS 16): Derecognition", "Intangibles (PAS 38): Internally generated vs acquired", "Intangibles (PAS 38): Amortization", "Investment Property (PAS 40): Cost vs fair value model", "Impariment of Assets (PAS 36): Cash-generating units", "Impariment of Assets (PAS 36): Reversal of impairment", "Biological Assets (PAS 41): Initial fair value measurement", "Biological Assets (PAS 41): Subsequent fair value measurement"] },
+                    { id: "far-1", name: "Non-financial Assets (PPE, Intangibles, Inv. Prop., Bio. Assets)", weight: 20.00, items: 14, subtopics: ["PPE (PAS 16): Initial measurement", "PPE (PAS 16): Subsequent measurement (cost vs revaluation model)", "PPE (PAS 16): Depreciation methods and computation", "PPE (PAS 16): Derecognition", "Intangibles (PAS 38): Internally generated vs acquired", "Intangibles (PAS 38): Amortization", "Investment Property (PAS 40): Cost vs fair value model", "Impairment of Assets (PAS 36): Cash-generating units", "Impairment of Assets (PAS 36): Reversal of impairment", "Biological Assets (PAS 41): Initial fair value measurement", "Biological Assets (PAS 41): Subsequent fair value measurement"] },
                     { id: "far-2", name: "Cash & Other Financial Assets", weight: 14.29, items: 10, subtopics: ["Cash and cash equivalents composition", "Bank reconciliation computation", "Petty cash fund accounting", "Receivables: Initial measurement", "Receivables: Allowance for doubtful accounts computation", "Receivables: Notes receivable discounting", "Investments (PFRS 9): Classification (Amortized Cost, FVOCI, FVTPL)", "Investments (PFRS 9): Expected Credit Loss (ECL) model", "Investments (PFRS 9): Debt vs Equity investments accounting"] },
                     { id: "far-3", name: "Shareholders' Equity", weight: 14.29, items: 10, subtopics: ["Share capital: Issuance and Share issue costs", "Share capital: Subscription and Retirement of shares", "Treasury shares: Cost method accounting", "Retained earnings: Appropriated vs unappropriated", "Retained earnings: Prior period errors adjustments", "Dividends: Cash, Property, Share, Liquidating, Scrip", "Computations: Book value per share", "Computations: Basic EPS (PAS 33)", "Computations: Diluted EPS (PAS 33)"] },
                     { id: "far-4", name: "Other Topics (Leases, Income Tax, Employee Benefits)", weight: 14.29, items: 10, subtopics: ["Leases (PFRS 16): Lessee right-of-use asset and lease liability", "Leases (PFRS 16): Lessor operating and finance leases", "Income Taxes (PAS 12): Current tax provision", "Income Taxes (PAS 12): Deferred tax assets/liabilities", "Employee Benefits (PAS 19): Short-term benefits", "Employee Benefits (PAS 19): Defined benefit plans", "Employee Benefits (PAS 19): Termination benefits", "Share-based payments (PFRS 2)", "Operating Segments (PFRS 8)", "Interim Reporting (PAS 34)"] },
@@ -184,6 +184,7 @@
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
+            const [appId, setAppId] = useState('cpale-tracker-default');
             const [authError, setAuthError] = useState(null);
 
             useEffect(() => {
@@ -210,7 +211,6 @@
                 }
             }, []);
 
-            // Real-time live synchronization using onSnapshot with clean root path
             useEffect(() => {
                 if (!db) {
                     const saved = localStorage.getItem('cpaleProgressLocal');
@@ -264,7 +264,7 @@
                 setExpandedTopics(prev => ({ ...prev, [topicId]: !prev[topicId] }));
             };
 
-            // CORRECTED MATH: Calculates progress based on topic weight proportions rather than raw line counts
+            // EXACT FORMULA: Subtopic weight = (Topic Exam Weight / Number of subtopics in that topic)
             const getTopicProgress = (topic) => {
                 if (!topic.subtopics || topic.subtopics.length === 0) return { completed: 0, total: 0, percentage: 0 };
                 let completedCount = 0;
@@ -284,13 +284,14 @@
 
                 subject.topics.forEach(topic => {
                     if (topic.subtopics && topic.subtopics.length > 0) {
-                        let topicCompleted = 0;
+                        let completedInTopic = 0;
                         topic.subtopics.forEach((_, index) => {
-                            if (subtopicStatus[`${topic.id}-${index}`]) topicCompleted++;
+                            if (subtopicStatus[`${topic.id}-${index}`]) completedInTopic++;
                         });
-                        const topicRatio = topicCompleted / topic.subtopics.length;
-                        // Multiply the completion ratio of this topic by its official exam weight
-                        totalWeightedScore += topicRatio * topic.weight;
+                        
+                        // Apply formula: (Completed subtopics / Total subtopics) * Topic Weight
+                        const subtopicWeightShare = topic.weight / topic.subtopics.length;
+                        totalWeightedScore += completedInTopic * subtopicWeightShare;
                     }
                 });
 
@@ -388,7 +389,7 @@
                                 <h2 className="text-3xl font-bold text-slate-900 mb-2">{syllabusData[activeSubject].title}</h2>
                                 <div className="flex gap-4 text-sm text-slate-500">
                                     <span className="flex items-center gap-1"><Icons.CheckCircle /> Total Items: {syllabusData[activeSubject].items}</span>
-                                    <span className="flex items-center gap-1"><Icons.BarChart /> Weighted by Exam Importance</span>
+                                    <span className="flex items-center gap-1"><Icons.BarChart /> Computed by Subtopic Weight Share</span>
                                 </div>
                                 
                                 <div className="mt-4 bg-slate-200 h-2 rounded-full overflow-hidden">
