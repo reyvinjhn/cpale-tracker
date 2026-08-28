@@ -248,11 +248,12 @@
                 const key = `${topicId}-${subtopicIndex}`;
                 
                 setSubtopicStatus(prevStatus => {
+                    // Check if they are toggling the current level OR choosing to reset completely
                     const isCurrent = prevStatus[key] === level || (prevStatus[key] === true && level === 'mastered');
                     const newStatus = { ...prevStatus };
                     
-                    if (isCurrent) {
-                        delete newStatus[key];
+                    if (level === 'reset' || isCurrent) {
+                        delete newStatus[key]; // Deleting effectively resets progress back to 0
                     } else {
                         newStatus[key] = level;
                     }
@@ -507,6 +508,13 @@
                                                                     </div>
                                                                     
                                                                     <div className="flex items-center gap-1 shrink-0 bg-slate-100 p-1 rounded-lg self-start xl:self-auto">
+                                                                        <button 
+                                                                            onClick={() => setMasteryStatus(topic.id, subIdx, 'reset')}
+                                                                            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-200"
+                                                                            title="Clear progress for this topic"
+                                                                        >
+                                                                            Reset
+                                                                        </button>
                                                                         <button 
                                                                             onClick={() => setMasteryStatus(topic.id, subIdx, 'weak')}
                                                                             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${status === 'weak' ? 'bg-red-500 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
