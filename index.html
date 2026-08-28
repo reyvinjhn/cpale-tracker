@@ -220,7 +220,7 @@
                 }
 
                 setIsSyncing(true);
-                const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
+                const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
                 
                 const unsubscribeSnapshot = window.firebaseDb.onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -251,7 +251,7 @@
                 if (db) {
                     setIsSyncing(true);
                     try {
-                        const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
+                        const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
                         await window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true });
                     } catch (error) {
                         console.error("Error saving progress:", error);
