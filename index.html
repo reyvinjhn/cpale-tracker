@@ -264,20 +264,25 @@
                 setExpandedTopics(prev => ({ ...prev, [topicId]: !prev[topicId] }));
             };
 
-            // EXACT FORMULA: Subtopic weight = (Topic Exam Weight / Number of subtopics in that topic)
+            // Topic progress reflects the exact sum of its checked subtopic shares
             const getTopicProgress = (topic) => {
                 if (!topic.subtopics || topic.subtopics.length === 0) return { completed: 0, total: 0, percentage: 0 };
                 let completedCount = 0;
                 topic.subtopics.forEach((_, index) => {
                     if (subtopicStatus[`${topic.id}-${index}`]) completedCount++;
                 });
+                
+                const subtopicWeightShare = topic.weight / topic.subtopics.length;
+                const totalTopicPercentageEarned = completedCount * subtopicWeightShare;
+
                 return {
                     completed: completedCount,
                     total: topic.subtopics.length,
-                    percentage: Math.round((completedCount / topic.subtopics.length) * 100)
+                    percentage: Number(totalTopicPercentageEarned.toFixed(2))
                 };
             };
 
+            // Subject progress sums up all checked subtopic contributions across every topic with exact decimals
             const getSubjectProgress = (subjectKey) => {
                 const subject = syllabusData[subjectKey];
                 let totalWeightedScore = 0;
@@ -289,13 +294,12 @@
                             if (subtopicStatus[`${topic.id}-${index}`]) completedInTopic++;
                         });
                         
-                        // Apply formula: (Completed subtopics / Total subtopics) * Topic Weight
                         const subtopicWeightShare = topic.weight / topic.subtopics.length;
                         totalWeightedScore += completedInTopic * subtopicWeightShare;
                     }
                 });
 
-                return Math.round(totalWeightedScore);
+                return Number(totalWeightedScore.toFixed(2));
             };
 
             const getPriorityColor = (weight) => {
@@ -333,7 +337,7 @@
                                 {Object.keys(syllabusData).map(key => (
                                     <div key={key} className="flex flex-col items-center shrink-0">
                                         <div className="text-xs text-slate-400 font-bold mb-1">{key}</div>
-                                        <div className="w-10 h-10 rounded-full border-4 border-slate-700 flex items-center justify-center relative">
+                                        <div className="w-12 h-12 rounded-full border-4 border-slate-700 flex items-center justify-center relative">
                                             <svg className="w-full h-full absolute top-0 left-0 -rotate-90" viewBox="0 0 36 36">
                                                 <path
                                                     className="text-blue-500"
@@ -344,7 +348,7 @@
                                                     strokeWidth="4"
                                                 />
                                             </svg>
-                                            <span className="text-[10px] font-bold relative z-10">{getSubjectProgress(key)}%</span>
+                                            <span className="text-[9px] font-bold relative z-10">{getSubjectProgress(key)}%</span>
                                         </div>
                                     </div>
                                 ))}
@@ -389,7 +393,7 @@
                                 <h2 className="text-3xl font-bold text-slate-900 mb-2">{syllabusData[activeSubject].title}</h2>
                                 <div className="flex gap-4 text-sm text-slate-500">
                                     <span className="flex items-center gap-1"><Icons.CheckCircle /> Total Items: {syllabusData[activeSubject].items}</span>
-                                    <span className="flex items-center gap-1"><Icons.BarChart /> Computed by Subtopic Weight Share</span>
+                                    <span className="flex items-center gap-1"><Icons.BarChart /> Weighted by Subtopic Share Ratio</span>
                                 </div>
                                 
                                 <div className="mt-4 bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -404,7 +408,8 @@
                                 {syllabusData[activeSubject].topics.map((topic, index) => {
                                     const progress = getTopicProgress(topic);
                                     const isExpanded = expandedTopics[topic.id];
-                                    const isFullyComplete = progress.percentage === 100 && progress.total > 0;
+                                    const isFullyComplete = progress.completed === progress.total && progress.total > 0;
+                                    const subtopicWeightValue = (topic.weight / topic.subtopics.length).toFixed(2);
 
                                     return (
                                         <div key={topic.id} className={`bg-white rounded-xl shadow-sm border transition-all ${isFullyComplete ? 'border-green-300 bg-green-50/30' : 'border-slate-200'}`}>
@@ -438,7 +443,7 @@
                                                                     Weight: {topic.weight.toFixed(2)}%
                                                                 </span>
                                                                 <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
-                                                                    Est. Items: {topic.items}
+                                                                    Each Subtopic: {subtopicWeightValue}%
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -448,13 +453,13 @@
                                                         <div className="text-sm font-semibold mb-1 flex items-center gap-2">
                                                             {isFullyComplete && <Icons.CheckCircle className="w-4 h-4 text-green-500" />}
                                                             <span className={isFullyComplete ? 'text-green-600' : 'text-slate-600'}>
-                                                                {progress.completed} / {progress.total} completed
+                                                                {progress.percentage}% completed ({progress.completed}/{progress.total})
                                                             </span>
                                                         </div>
                                                         <div className="w-32 bg-slate-200 h-2 rounded-full overflow-hidden">
                                                             <div 
                                                                 className={`h-full transition-all duration-300 ${isFullyComplete ? 'bg-green-500' : 'bg-blue-500'}`}
-                                                                style={{ width: `${progress.percentage}%` }}
+                                                                style={{ width: `${(progress.completed / progress.total) * 100}%` }}
                                                             ></div>
                                                         </div>
                                                     </div>
@@ -483,9 +488,14 @@
                                                                             <Icons.Square className="w-5 h-5 text-slate-400" />
                                                                         )}
                                                                     </div>
-                                                                    <span className={`text-sm leading-snug select-none ${isChecked ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
-                                                                        {subtopic}
-                                                                    </span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className={`text-sm leading-snug select-none ${isChecked ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
+                                                                            {subtopic}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                                                                            +{subtopicWeightValue}% toward exam
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             );
                                                         })}
