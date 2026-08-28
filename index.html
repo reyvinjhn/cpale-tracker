@@ -248,12 +248,13 @@
                 const key = `${topicId}-${subtopicIndex}`;
                 
                 setSubtopicStatus(prevStatus => {
-                    // Check if they are toggling the current level OR choosing to reset completely
+                    // Check if they are toggling the current level
                     const isCurrent = prevStatus[key] === level || (prevStatus[key] === true && level === 'mastered');
                     const newStatus = { ...prevStatus };
                     
-                    if (level === 'reset' || isCurrent) {
-                        delete newStatus[key]; // Deleting effectively resets progress back to 0
+                    // If they click the exact same active button, default back to 'not-started'
+                    if (isCurrent) {
+                        newStatus[key] = 'not-started'; 
                     } else {
                         newStatus[key] = level;
                     }
@@ -262,11 +263,11 @@
                     localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
 
                     // Push to cloud without awaiting to prevent UI freezing
-                    // REMOVED { merge: true } so Firebase properly drops the deleted keys
+                    // Because we are setting a concrete string ("not-started"), merge: true will safely overwrite old data
                     if (db && user) {
                         setIsSyncing(true);
                         const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
-                        window.firebaseDb.setDoc(docRef, { status: newStatus })
+                        window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true })
                             .catch(error => console.error("Error saving progress:", error))
                             .finally(() => setIsSyncing(false));
                     }
@@ -287,6 +288,7 @@
 
                 topic.subtopics.forEach((_, index) => {
                     const status = subtopicStatus[`${topic.id}-${index}`];
+                    // "not-started" and "weak" yield 0
                     if (status === 'mastered' || status === true) {
                         earnedWeight += subtopicWeightShare * 1.0;
                     } else if (status === 'knowledgeable') {
@@ -510,11 +512,10 @@
                                                                     
                                                                     <div className="flex items-center gap-1 shrink-0 bg-slate-100 p-1 rounded-lg self-start xl:self-auto">
                                                                         <button 
-                                                                            onClick={() => setMasteryStatus(topic.id, subIdx, 'reset')}
-                                                                            className="px-3 py-1.5 text-xs font-semibold rounded-md transition-all text-slate-400 hover:text-slate-600 hover:bg-slate-200"
-                                                                            title="Clear progress for this topic"
+                                                                            onClick={() => setMasteryStatus(topic.id, subIdx, 'not-started')}
+                                                                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${status === 'not-started' ? 'bg-slate-400 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
                                                                         >
-                                                                            Reset
+                                                                            Not Started
                                                                         </button>
                                                                         <button 
                                                                             onClick={() => setMasteryStatus(topic.id, subIdx, 'weak')}
