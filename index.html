@@ -262,10 +262,11 @@
                     localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
 
                     // Push to cloud without awaiting to prevent UI freezing
+                    // REMOVED { merge: true } so Firebase properly drops the deleted keys
                     if (db && user) {
                         setIsSyncing(true);
                         const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
-                        window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true })
+                        window.firebaseDb.setDoc(docRef, { status: newStatus })
                             .catch(error => console.error("Error saving progress:", error))
                             .finally(() => setIsSyncing(false));
                     }
