@@ -15,30 +15,27 @@
     <!-- Babel to translate React JSX code in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Firebase SDK (Version 11.6.1 as required) -->
+    <!-- Firebase SDK (Version 11.6.1) -->
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Replace the values below with the keys you copied from the Firebase console
-    const firebaseConfig = {
-        apiKey: "AIzaSyCGCtGW2s3ixHGSjFn8fWGUNAVvY-bBi1s",
-        authDomain: "cpale-tracker.firebaseapp.com",
-        projectId: "cpale-tracker",
-        storageBucket: "cpale-tracker.appspot.com",
-        messagingSenderId: "100097586893",
-        appId: "1:100097586893:web:cbfae0b7b0d9e0b7e61b84"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGCtGW2s3ixHGSjFn8fWGUNAVvY-bBi1s",
+            authDomain: "cpale-tracker.firebaseapp.com",
+            projectId: "cpale-tracker",
+            storageBucket: "cpale-tracker.appspot.com",
+            messagingSenderId: "100097586893",
+            appId: "1:100097586893:web:cbfae0b7b0d9e0b7e61b84"
+        };
 
-    // Initialize the app with your keys
-    const app = initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfig);
 
-    // Expose the initialized tools so React can use them
-    window.firebaseApp = app;
-    window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged, signInWithCustomToken };
-    window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc, onSnapshot };
-</script>
+        window.firebaseApp = app;
+        window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged, signInWithCustomToken };
+        window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc, onSnapshot };
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans">
     <div id="root"></div>
@@ -46,7 +43,6 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // SVG Icons to replace external dependencies and ensure it works perfectly in one file
         const Icons = {
             Book: () => <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>,
             CheckCircle: ({className="w-4 h-4"}) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
@@ -176,7 +172,6 @@
             }
         };
 
-        // Sort topics by weight (High yield first)
         Object.keys(syllabusData).forEach(subjectKey => {
             syllabusData[subjectKey].topics.sort((a, b) => b.weight - a.weight);
         });
@@ -186,7 +181,6 @@
             const [subtopicStatus, setSubtopicStatus] = useState({});
             const [expandedTopics, setExpandedTopics] = useState({});
             
-            // Firebase State
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
@@ -196,98 +190,65 @@
             useEffect(() => {
                 if (!window.firebaseApp || !window.firebaseAuth || !window.firebaseDb) return;
 
-                const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-                let firebaseConfig = {};
-                
                 try {
-                    // Fallback configuration if none provided by environment to prevent crashing
-                    firebaseConfig = JSON.parse(configString);
-                    if (Object.keys(firebaseConfig).length === 0) {
-                        console.warn("Using local storage fallback as Firebase config is missing.");
-                        setAuthError("No Cloud Config");
-                        return; // Exit early if no real config
-                    }
-                } catch(e) {
-                    console.warn("Invalid Firebase config provided");
-                    setAuthError("Invalid Config");
-                    return;
-                }
-                
-                const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-cpale-app';
-                setAppId(currentAppId);
-
-                try {
-                    const app = window.firebaseApp(firebaseConfig);
-                    const auth = window.firebaseAuth.getAuth(app);
-                    const firestoreDb = window.firebaseDb.getFirestore(app);
+                    const app = window.firebaseApp;
+                    const auth = window.firebaseAuth.authInstance;
+                    const firestoreDb = window.firebaseDb.dbInstance;
                     setDb(firestoreDb);
 
-                    const initAuth = async () => {
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                await window.firebaseAuth.signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                await window.firebaseAuth.signInAnonymously(auth);
-                            }
-                        } catch (error) {
-                            console.error("Auth error:", error);
-                            setAuthError("Failed to connect");
-                        }
-                    };
-                    
-                    initAuth();
+                    window.firebaseAuth.signInAnonymously(auth).catch((error) => {
+                        console.error("Auth error:", error);
+                        setAuthError("Failed to connect");
+                    });
 
-                    const unsubscribe = window.firebaseAuth.onAuthStateChanged(auth, (currentUser) => {
+                    const unsubscribeAuth = window.firebaseAuth.onAuthStateChanged(auth, (currentUser) => {
                         setUser(currentUser);
                     });
 
-                    return () => unsubscribe();
+                    return () => unsubscribeAuth();
                 } catch (error) {
                     console.error("Firebase init error:", error);
                 }
             }, []);
 
+            // Real-time live synchronization using onSnapshot
             useEffect(() => {
-                const fetchProgress = async () => {
-                    // If no cloud connection, try to load from local storage
-                    if (!user || !db) {
-                        const saved = localStorage.getItem('cpaleProgressLocal');
-                        if (saved) setSubtopicStatus(JSON.parse(saved));
-                        return;
-                    }
-                    
-                    setIsSyncing(true);
-                    try {
-                        const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
-                        const docSnap = await window.firebaseDb.getDoc(docRef);
-                        
-                        if (docSnap.exists()) {
-                            setSubtopicStatus(docSnap.data().status || {});
-                        }
-                    } catch (error) {
-                        console.error("Error fetching progress:", error);
-                    } finally {
-                        setIsSyncing(false);
-                    }
-                };
+                if (!db) {
+                    const saved = localStorage.getItem('cpaleProgressLocal');
+                    if (saved) setSubtopicStatus(JSON.parse(saved));
+                    return;
+                }
 
-                fetchProgress();
+                setIsSyncing(true);
+                const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
+                
+                const unsubscribeSnapshot = window.firebaseDb.onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        setSubtopicStatus(docSnap.data().status || {});
+                    }
+                    setIsSyncing(false);
+                }, (error) => {
+                    console.error("Sync error:", error);
+                    setIsSyncing(false);
+                });
 
+                return () => unsubscribeSnapshot();
+            }, [db, appId]);
+
+            useEffect(() => {
                 if (syllabusData[activeSubject] && syllabusData[activeSubject].topics.length > 0) {
                     setExpandedTopics({ [syllabusData[activeSubject].topics[0].id]: true });
                 }
-            }, [user, db, appId, activeSubject]);
+            }, [activeSubject]);
 
             const toggleSubtopic = async (topicId, subtopicIndex) => {
                 const key = `${topicId}-${subtopicIndex}`;
                 const newStatus = { ...subtopicStatus, [key]: !subtopicStatus[key] };
                 setSubtopicStatus(newStatus);
                 
-                // Save locally as a backup
                 localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
 
-                // Save to Firebase
-                if (user && db) {
+                if (db) {
                     setIsSyncing(true);
                     try {
                         const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
@@ -351,7 +312,6 @@
 
             return (
                 <div className="min-h-screen flex flex-col">
-                    {/* Header */}
                     <header className="bg-slate-900 text-white p-6 shadow-md">
                         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
                             <div className="flex items-center gap-3 mb-4 md:mb-0">
@@ -367,7 +327,6 @@
                                 </div>
                             </div>
                             
-                            {/* Overall Progress Summary */}
                             <div className="flex gap-4 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto justify-start md:justify-end">
                                 {Object.keys(syllabusData).map(key => (
                                     <div key={key} className="flex flex-col items-center shrink-0">
@@ -391,10 +350,7 @@
                         </div>
                     </header>
 
-                    {/* Main Content */}
                     <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
-                        
-                        {/* Sidebar - Subject Navigation */}
                         <aside className="w-full md:w-64 shrink-0">
                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-6">
                                 <div className="p-4 bg-slate-50 border-b border-slate-200 font-semibold text-slate-700">
@@ -426,7 +382,6 @@
                             </div>
                         </aside>
 
-                        {/* Content Area - Topic List with Checklists */}
                         <section className="flex-1">
                             <div className="mb-6">
                                 <h2 className="text-3xl font-bold text-slate-900 mb-2">{syllabusData[activeSubject].title}</h2>
@@ -435,7 +390,6 @@
                                     <span className="flex items-center gap-1"><Icons.BarChart /> Sorted by Exam Weight</span>
                                 </div>
                                 
-                                {/* Subject Progress Bar */}
                                 <div className="mt-4 bg-slate-200 h-2 rounded-full overflow-hidden">
                                     <div 
                                         className="bg-blue-600 h-full transition-all duration-500" 
@@ -452,14 +406,12 @@
 
                                     return (
                                         <div key={topic.id} className={`bg-white rounded-xl shadow-sm border transition-all ${isFullyComplete ? 'border-green-300 bg-green-50/30' : 'border-slate-200'}`}>
-                                            {/* Topic Header */}
                                             <div 
                                                 className="p-5 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl"
                                                 onClick={() => toggleTopicExpand(topic.id)}
                                             >
                                                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                                     
-                                                    {/* Left: Title & Priority */}
                                                     <div className="flex-1 flex gap-3">
                                                         <div className="mt-1">
                                                             {isExpanded ? (
@@ -490,7 +442,6 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    {/* Right: Progress Indicator */}
                                                     <div className="flex flex-col items-end shrink-0">
                                                         <div className="text-sm font-semibold mb-1 flex items-center gap-2">
                                                             {isFullyComplete && <Icons.CheckCircle className="w-4 h-4 text-green-500" />}
@@ -509,7 +460,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Topic Body (Checklist) */}
                                             {isExpanded && topic.subtopics && (
                                                 <div className="border-t border-slate-100 p-5 bg-slate-50/50 rounded-b-xl">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
@@ -526,9 +476,9 @@
                                                                 >
                                                                     <div className="mt-0.5 shrink-0">
                                                                         {isChecked ? (
-                                                                        <Icons.CheckSquare className="w-5 h-5 text-green-600" />
+                                                                            <Icons.CheckSquare className="w-5 h-5 text-green-600" />
                                                                         ) : (
-                                                                        <Icons.Square className="w-5 h-5 text-slate-400" />
+                                                                            <Icons.Square className="w-5 h-5 text-slate-400" />
                                                                         )}
                                                                     </div>
                                                                     <span className={`text-sm leading-snug select-none ${isChecked ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
@@ -548,11 +498,10 @@
                         </section>
                     </main>
 
-                    {/* Footer */}
                     <footer className="bg-slate-900 py-6 text-center text-slate-400 text-sm mt-auto">
                         <p>Based on BOA Resolution No. 30, Series of 2022 (Applicable for May & October 2026 CPALE)</p>
                         {user ? (
-                            <p className="mt-1 text-green-400">Cloud Sync Active (User ID: {user.uid.substring(0,6)}...)</p>
+                            <p className="mt-1 text-green-400">Cloud Sync Active (Shared Tracker Mode)</p>
                         ) : (
                             <p className="mt-1 text-yellow-400">Progress saving locally to your current browser.</p>
                         )}
