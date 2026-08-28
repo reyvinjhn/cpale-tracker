@@ -10,7 +10,7 @@
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
     <!-- Babel to translate React JSX code in the browser -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -18,24 +18,23 @@
     <!-- Firebase SDK (Version 11.6.1) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- PASTE YOUR NEW FIREBASE KEYS HERE ---
         const firebaseConfig = {
-            apiKey: "YOUR_NEW_API_KEY",
-            authDomain: "YOUR_NEW_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_NEW_PROJECT_ID",
-            storageBucket: "YOUR_NEW_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_NEW_SENDER_ID",
-            appId: "YOUR_NEW_APP_ID"
+            apiKey: "AIzaSyCGCtGW2s3ixHGSjFn8fWGUNAVvY-bBi1s",
+            authDomain: "cpale-tracker.firebaseapp.com",
+            projectId: "cpale-tracker",
+            storageBucket: "cpale-tracker.appspot.com",
+            messagingSenderId: "100097586893",
+            appId: "1:100097586893:web:cbfae0b7b0d9e0b7e61b84"
         };
 
         const app = initializeApp(firebaseConfig);
 
         window.firebaseApp = app;
-        window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged };
-        window.firebaseDb = { dbInstance: getFirestore(app), doc, setDoc, onSnapshot };
+        window.firebaseAuth = { authInstance: getAuth(app), signInAnonymously, onAuthStateChanged, signInWithCustomToken };
+        window.firebaseDb = { dbInstance: getFirestore(app), doc, getDoc, setDoc, onSnapshot };
     </script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans">
@@ -61,35 +60,158 @@
                 topics: [
                     { id: "far-1", name: "Non-financial Assets (PPE, Intangibles, Inv. Prop., Bio. Assets)", weight: 20.00, items: 14, subtopics: ["PPE (PAS 16): Initial measurement", "PPE (PAS 16): Subsequent measurement (cost vs revaluation model)", "PPE (PAS 16): Depreciation methods and computation", "PPE (PAS 16): Derecognition", "Intangibles (PAS 38): Internally generated vs acquired", "Intangibles (PAS 38): Amortization", "Investment Property (PAS 40): Cost vs fair value model", "Impairment of Assets (PAS 36): Cash-generating units", "Impairment of Assets (PAS 36): Reversal of impairment", "Biological Assets (PAS 41): Initial fair value measurement", "Biological Assets (PAS 41): Subsequent fair value measurement"] },
                     { id: "far-2", name: "Cash & Other Financial Assets", weight: 14.29, items: 10, subtopics: ["Cash and cash equivalents composition", "Bank reconciliation computation", "Petty cash fund accounting", "Receivables: Initial measurement", "Receivables: Allowance for doubtful accounts computation", "Receivables: Notes receivable discounting", "Investments (PFRS 9): Classification (Amortized Cost, FVOCI, FVTPL)", "Investments (PFRS 9): Expected Credit Loss (ECL) model", "Investments (PFRS 9): Debt vs Equity investments accounting"] },
-                    { id: "far-3", name: "Shareholders' Equity", weight: 14.29, items: 10, subtopics: ["Share capital: Issuance and Share issue costs", "Share capital: Subscription and Retirement of shares", "Treasury shares: Cost method accounting", "Retained earnings: Appropriated vs unappropriated", "Retained earnings: Prior period errors adjustments", "Dividends: Cash, Property, Share, Liquidating, Scrip", "Computations: Book value per share", "Computations: Basic EPS (PAS 33)", "Computations: Diluted EPS (PAS 33)"] }
+                    { id: "far-3", name: "Shareholders' Equity", weight: 14.29, items: 10, subtopics: ["Share capital: Issuance and Share issue costs", "Share capital: Subscription and Retirement of shares", "Treasury shares: Cost method accounting", "Retained earnings: Appropriated vs unappropriated", "Retained earnings: Prior period errors adjustments", "Dividends: Cash, Property, Share, Liquidating, Scrip", "Computations: Book value per share", "Computations: Basic EPS (PAS 33)", "Computations: Diluted EPS (PAS 33)"] },
+                    { id: "far-4", name: "Other Topics (Leases, Income Tax, Employee Benefits)", weight: 14.29, items: 10, subtopics: ["Leases (PFRS 16): Lessee right-of-use asset and lease liability", "Leases (PFRS 16): Lessor operating and finance leases", "Income Taxes (PAS 12): Current tax provision", "Income Taxes (PAS 12): Deferred tax assets/liabilities", "Employee Benefits (PAS 19): Short-term benefits", "Employee Benefits (PAS 19): Defined benefit plans", "Employee Benefits (PAS 19): Termination benefits", "Share-based payments (PFRS 2)", "Operating Segments (PFRS 8)", "Interim Reporting (PAS 34)"] },
+                    { id: "far-5", name: "Conceptual Framework & Process", weight: 12.86, items: 9, subtopics: ["Conceptual Framework: Objective and Qualitative characteristics", "Conceptual Framework: Elements, Recognition, Derecognition", "Conceptual Framework: Measurement bases", "PAS 1: Presentation of Financial Statements (Current/Non-current)", "PAS 7: Statement of Cash Flows (Operating, Investing, Financing)", "PAS 10: Events after reporting period"] },
+                    { id: "far-6", name: "Other Frameworks (PFRS for SMEs)", weight: 7.14, items: 5, subtopics: ["SMEs: Definition and qualifications", "SMEs: Exemptions and simplifications", "SMEs vs Full PFRS: Goodwill amortization", "SMEs vs Full PFRS: Borrowing costs", "SMEs vs Full PFRS: Intangible assets", "SMEs vs Full PFRS: Revaluation model availability"] },
+                    { id: "far-7", name: "Reporting Framework Development", weight: 5.71, items: 4, subtopics: ["Standard-setting bodies: FRSC structure and process", "Standard-setting bodies: PIC", "Regulatory bodies: BOA, SEC, BSP, IC", "Regulation of the accountancy profession (RA 9298)"] },
+                    { id: "far-8", name: "Financial Liabilities", weight: 5.71, items: 4, subtopics: ["Trade and other payables, Unearned revenues", "Notes payable accounting", "Bonds payable: Issuance", "Bonds payable: Premium/discount amortization (effective interest method)", "Compound financial instruments: Convertible bonds", "Compound financial instruments: Allocation of issue price"] },
+                    { id: "far-9", name: "Provisions & Contingencies", weight: 5.71, items: 4, subtopics: ["Provisions (PAS 37): Present obligation, Probable outflow, Reliable estimate", "Specific applications: Warranties and Premiums", "Specific applications: Restructuring and Onerous contracts", "Contingent liabilities: Recognition vs Disclosure", "Contingent assets: Recognition vs Disclosure"] }
+                ]
+            },
+            AFAR: {
+                title: "Advanced Financial Accounting and Reporting (AFAR)",
+                items: 70,
+                topics: [
+                    { id: "afar-1", name: "Partnership Accounting", weight: 14.29, items: 10, subtopics: ["Formation: Valuation of partner contributions", "Operations: Profit/loss distribution", "Operations: Bonus, Interest, Salaries", "Dissolution: Admission by purchase or investment", "Dissolution: Withdrawal, Retirement, Death", "Liquidation: Lump-sum", "Liquidation: Installment", "Liquidation: Safe payment schedule", "Liquidation: Cash distribution program"] },
+                    { id: "afar-2", name: "Revenue Recognition (PFRS 15)", weight: 14.29, items: 10, subtopics: ["Core principle: 5-step model application", "Long-term construction: Percentage of completion (input/output)", "Long-term construction: Zero-profit method", "Franchise operations: Initial franchise fees", "Franchise operations: Continuing franchise fees", "Consignment sales accounting", "Bill-and-hold arrangements"] },
+                    { id: "afar-3", name: "Cost Accounting", weight: 14.29, items: 10, subtopics: ["Job-order costing: Normal vs actual", "Job-order costing: Spoilage, Rework", "Process costing: FIFO vs Weighted Average", "Process costing: Equivalent units computation", "Process costing: Lost units (normal vs abnormal)", "Standard costing: Material variances", "Standard costing: Labor variances", "Standard costing: Overhead variances (2-way, 3-way, 4-way)", "Activity-Based Costing (ABC)", "Just-In-Time (JIT) and Backflush costing", "Joint and by-product costing"] },
+                    { id: "afar-4", name: "Business Combination (PFRS 3)", weight: 8.57, items: 6, subtopics: ["Acquisition method: Identifying the acquirer", "Acquisition method: Determining consideration transferred", "Recognition and measurement: Goodwill", "Recognition and measurement: Bargain Purchase Gain", "Measurement of NCI: Fair value vs Proportionate share", "Measurement period adjustments"] },
+                    { id: "afar-5", name: "Consolidation (PFRS 10)", weight: 7.14, items: 5, subtopics: ["Post-acquisition consolidation procedures", "Elimination entries preparation", "Intercompany transactions: Inventory sales (upstream vs downstream)", "Intercompany transactions: Fixed asset sales", "Intercompany transactions: Intercompany bond holdings", "NCI computation in consolidation", "Consolidated net income and retained earnings computation"] },
+                    { id: "afar-6", name: "Corporate Liquidation", weight: 5.71, items: 4, subtopics: ["Statement of Affairs: Assets pledged to fully/partially secured creditors", "Statement of Affairs: Free assets", "Statement of Affairs: Unsecured liabilities with/without priority", "Estimated Recovery Percentage computation", "Statement of Deficiency preparation", "Statement of Realization and Liquidation"] },
+                    { id: "afar-7", name: "Joint Arrangements (PFRS 11)", weight: 5.71, items: 4, subtopics: ["Classification: Joint operations vs Joint ventures", "Accounting for joint operations (share in assets/liabilities)", "Accounting for joint ventures (Equity method)", "Differentiating joint arrangements from business combinations"] },
+                    { id: "afar-8", name: "Home Office, Branch & Agency", weight: 5.71, items: 4, subtopics: ["General and special accounting procedures", "Billed price transfers (allowance for overvaluation)", "Inter-branch transfers of cash and merchandise", "Reconciliation of reciprocal accounts", "Combined financial statements preparation"] },
+                    { id: "afar-9", name: "Separate Financial Statements (PAS 27)", weight: 5.71, items: 4, subtopics: ["Investments in subsidiaries (Cost, FV, or Equity method)", "Investments in joint ventures (Cost, FV, or Equity method)", "Investments in associates (Cost, FV, or Equity method)"] },
+                    { id: "afar-10", name: "Derivatives & Hedging (PFRS 9)", weight: 5.71, items: 4, subtopics: ["Derivative instruments: Forward contracts and Futures", "Derivative instruments: Options and Swaps", "Hedging relationships: Fair value hedge", "Hedging relationships: Cash flow hedge", "Hedging relationships: Net investment hedge", "Foreign currency forward contracts accounting"] },
+                    { id: "afar-11", name: "Foreign Currency Translation (PAS 21)", weight: 4.29, items: 3, subtopics: ["Determining functional currency", "Translation of foreign operations: Current rate method", "Translation adjustments computation", "Foreign currency transactions: Spot rates and Year-end adjustments", "Recognition of forex gains/losses"] },
+                    { id: "afar-12", name: "Government Accounting (GAM)", weight: 2.86, items: 2, subtopics: ["Government accounting process and basis", "Budgetary accounts: Appropriation, Allotment, Obligation, Disbursement", "Journal entries for National Government Agencies (NGAs)"] },
+                    { id: "afar-13", name: "Not-for-Profit Organizations", weight: 2.86, items: 2, subtopics: ["Fund accounting concepts", "Unrestricted vs Restricted funds (temporarily/permanently)", "Accounting for healthcare organizations (hospitals)", "Accounting for educational institutions (universities)", "Accounting for voluntary health and welfare organizations"] },
+                    { id: "afar-14", name: "Other Topics (PFRS 17, IFRIC 12)", weight: 2.86, items: 2, subtopics: ["Insurance contracts (PFRS 17): Classification", "Insurance contracts (PFRS 17): Initial and subsequent measurement", "Service Concession Arrangements (IFRIC 12): Financial asset model", "Service Concession Arrangements (IFRIC 12): Intangible asset model"] }
+                ]
+            },
+            MAS: {
+                title: "Management Services (MAS)",
+                items: 70,
+                topics: [
+                    { id: "mas-1", name: "Management Accounting: Planning & Control", weight: 31.43, items: 22, subtopics: ["CVP Analysis: Breakeven point computation", "CVP Analysis: Target profit and Margin of safety", "CVP Analysis: Multiproduct CVP", "Standard costing: Direct Material variances", "Standard costing: Direct Labor variances", "Standard costing: Overhead variance analysis", "Budgeting: Master budget preparation", "Budgeting: Sales, production, and cash budgets", "Budgeting: Flexible budgets", "Budgeting: Zero-based budgeting"] },
+                    { id: "mas-2", name: "Management Accounting: Decision Making", weight: 11.43, items: 8, subtopics: ["Relevant costing: Make or buy decisions", "Relevant costing: Accept or reject special orders", "Relevant costing: Sell or process further", "Relevant costing: Keep or drop segments", "Relevant costing: Product mix with capacity constraints", "Pricing decisions: Cost-plus pricing", "Pricing decisions: Target costing", "Quantitative methods: Linear programming basics", "Quantitative methods: Probability analysis"] },
+                    { id: "mas-3", name: "Management Accounting: Performance Measurement", weight: 11.43, items: 8, subtopics: ["Responsibility accounting: Cost, Revenue, Profit, Investment centers", "Transfer pricing: Market-based", "Transfer pricing: Cost-based", "Transfer pricing: Negotiated", "Segmented income statements preparation", "Performance metrics: Return on Investment (ROI)", "Performance metrics: Residual Income (RI)", "Performance metrics: Economic Value Added (EVA)"] },
+                    { id: "mas-4", name: "Working Capital Management", weight: 8.57, items: 6, subtopics: ["Cash management: Baumol model", "Cash management: Miller-Orr model", "Cash management: Cash conversion cycle", "Receivables management: Credit policy evaluation", "Receivables management: Cash discounts", "Inventory management: Economic Order Quantity (EOQ)", "Inventory management: Reorder point and Safety stock", "Short-term financing: Trade credit and Bank loans"] },
+                    { id: "mas-5", name: "Financial Statement Analysis", weight: 7.14, items: 5, subtopics: ["Liquidity ratios: Current and Quick ratios", "Solvency ratios: Debt-to-equity and Times interest earned", "Profitability ratios: Margin, ROA, ROE", "Asset management/turnover ratios", "DuPont analysis framework", "Horizontal and vertical analysis techniques"] },
+                    { id: "mas-6", name: "Capital Budgeting", weight: 7.14, items: 5, subtopics: ["Discounted techniques: Net Present Value (NPV)", "Discounted techniques: Internal Rate of Return (IRR)", "Discounted techniques: Profitability Index", "Non-discounted techniques: Payback period", "Non-discounted techniques: Accounting Rate of Return (ARR)", "Relevant cash flows and tax shields determination"] },
+                    { id: "mas-7", name: "Macroeconomics", weight: 4.29, items: 3, subtopics: ["GDP computation and components", "Business cycles phases", "Inflation and Unemployment concepts", "Fiscal policy: Taxes and government spending", "Monetary policy: Interest rates, reserve requirements, open market operations"] },
+                    { id: "mas-8", name: "Microeconomics", weight: 2.86, items: 2, subtopics: ["Law of supply and demand", "Price elasticity computation and interpretation", "Market structures: Perfect and Monopolistic competition", "Market structures: Oligopoly and Monopoly", "Marginal utility and consumer choice"] },
+                    { id: "mas-9", name: "Nature, Objectives & Scope of FM", weight: 4.29, items: 3, subtopics: ["Role of the financial manager", "Goal of the firm: Wealth vs profit maximization", "Agency theory and corporate governance", "Overview of the financial environment"] },
+                    { id: "mas-10", name: "Risk and Leverage", weight: 2.86, items: 2, subtopics: ["Leverage: Degree of Operating Leverage (DOL)", "Leverage: Financial Leverage (DFL) and Total Leverage (DTL)", "Risk measurement: Variance and Standard deviation", "Risk measurement: Coefficient of variation", "Portfolio risk and return basics"] },
+                    { id: "mas-11", name: "Capital Structure & Long-term Financing", weight: 2.86, items: 2, subtopics: ["Cost of capital components: Cost of debt and preferred equity", "Cost of capital components: Cost of common equity (CAPM, Gordon Growth)", "Weighted Average Cost of Capital (WACC) computation", "Capital structure theories overview", "Dividend policy theories"] },
+                    { id: "mas-12", name: "Financial Markets & Derivatives", weight: 2.86, items: 2, subtopics: ["Money markets vs capital markets", "Primary vs secondary markets", "Basic valuation: Equity and fixed-income instruments (Bond YTM)", "Overview of derivatives (options, forwards) in finance"] },
+                    { id: "mas-13", name: "Objectives, Role & Scope of MA", weight: 2.86, items: 2, subtopics: ["Management vs financial accounting differences", "Role of the controller vs treasurer", "Ethical standards for management accountants (IMA)"] }
+                ]
+            },
+            AUD: {
+                title: "Auditing",
+                items: 70,
+                topics: [
+                    { id: "aud-1", name: "Planning & Risk Assessment (Practice)", weight: 25.71, items: 18, subtopics: ["Pre-engagement activities and Client acceptance", "Understanding the entity and its environment", "Evaluating internal control design and implementation", "Assessing risks of material misstatement", "Inherent, Control, and Detection risk concepts", "Materiality thresholds: Overall vs Performance materiality", "Developing the overall audit strategy and plan"] },
+                    { id: "aud-2", name: "Communication & Reporting (Practice)", weight: 8.57, items: 6, subtopics: ["Forming an audit opinion: Unmodified vs Modified", "Types of modified opinions: Qualified, Adverse, Disclaimer", "Drafting the Basis for opinion paragraph", "Key Audit Matters (KAM) identification and reporting", "Emphasis of Matter (EOM) and Other Matter paragraphs", "Reporting on comparative information"] },
+                    { id: "aud-3", name: "Risk Response (Practice)", weight: 8.57, items: 6, subtopics: ["Designing and performing tests of controls", "Substantive procedures: Substantive analytical procedures", "Substantive procedures: Tests of details", "Preparation and review of audit working papers", "Proposing adjusting and reclassifying journal entries"] },
+                    { id: "aud-4", name: "Governance, Ethics & Quality Mgmt (Practice)", weight: 7.14, items: 5, subtopics: ["Code of Ethics: Identifying threats to independence", "Code of Ethics: Applying safeguards", "Independence requirements for assurance engagements", "System of Quality Management (PSQM 1): Firm-level responsibilities", "System of Quality Management (PSQM 2): Engagement quality reviews"] },
+                    { id: "aud-5", name: "Entity & Internal Control (Theory)", weight: 7.14, items: 5, subtopics: ["COSO Framework: Control environment", "COSO Framework: Risk assessment and Control activities", "COSO Framework: Information and communication, Monitoring", "Manual controls vs IT controls", "Identifying and evaluating deficiencies in internal control"] },
+                    { id: "aud-6", name: "Audit Objectives & Evidence (Theory)", weight: 7.14, items: 5, subtopics: ["Financial statement assertions: Classes of transactions", "Financial statement assertions: Account balances and Presentation", "Audit evidence: Sufficiency, Appropriateness, Reliability", "Audit sampling: Statistical vs non-statistical approaches", "Audit sampling: Attribute vs variable sampling techniques"] },
+                    { id: "aud-7", name: "Completing the Audit (Theory)", weight: 7.14, items: 5, subtopics: ["Subsequent events review: Adjusting vs Non-adjusting events", "Going concern assessment: Management's vs Auditor's responsibility", "Obtaining and evaluating written representations", "Performing final analytical procedures", "Evaluating uncorrected misstatements"] },
+                    { id: "aud-8", name: "Attestation Services (Theory)", weight: 7.14, items: 5, subtopics: ["Review of historical financial information (PSRE standards)", "Agreed-upon procedures engagements (PSRS standards)", "Compilation engagements", "Examination of prospective financial information (forecasts/projections)"] },
+                    { id: "aud-9", name: "Fundamentals of Auditing (Theory)", weight: 5.71, items: 4, subtopics: ["Objective and scope of a financial statement audit", "Concept of reasonable assurance", "Types of audits: Financial, Operational, Compliance", "Auditor responsibilities vs management responsibilities"] },
+                    { id: "aud-10", name: "Client Acceptance & Planning (Theory)", weight: 5.71, items: 4, subtopics: ["Factors in client continuance and acceptance decisions", "Engagement letters: Contents and prerequisites", "Considerations for initial audit engagements", "Audit procedures for opening balances"] },
+                    { id: "aud-11", name: "Reports on Financial Statements (Theory)", weight: 5.71, items: 4, subtopics: ["General principles of audit reporting", "Concepts underlying modifications to the auditor's report", "Auditor's association with financial information"] },
+                    { id: "aud-12", name: "CIS / IT Audit Environment (Theory)", weight: 4.29, items: 3, subtopics: ["IT general controls: Access security, program changes", "IT application controls: Input, processing, output controls", "Auditing around vs through the computer", "Computer-Assisted Audit Techniques (CAATs): Test data", "Computer-Assisted Audit Techniques (CAATs): Generalized audit software"] }
+                ]
+            },
+            TAX: {
+                title: "Taxation",
+                items: 70,
+                topics: [
+                    { id: "tax-1", name: "Income Taxation", weight: 20.00, items: 14, subtopics: ["Taxpayer classification: Individuals, Corps, Partnerships", "Gross income inclusions and exclusions", "Fringe benefits tax computation", "Capital gains tax rules and rates", "Deductions: Itemized deductions", "Deductions: Optional Standard Deduction (OSD)", "CREATE MORE Act: Corporate income tax rates updates", "CREATE MORE Act: Minimum Corporate Income Tax (MCIT)", "CREATE MORE Act: Passive income rules", "Tax compliance, filing requirements, and deadlines"] },
+                    { id: "tax-2", name: "Business Taxes (VAT & Percentage Tax)", weight: 17.14, items: 12, subtopics: ["Value-Added Tax (VAT): Subject transactions and rates", "Value-Added Tax (VAT): Exempt transactions", "Value-Added Tax (VAT): Zero-rated sales", "Value-Added Tax (VAT): Output VAT computation", "Value-Added Tax (VAT): Input VAT crediting and apportionment", "3% Percentage tax application", "Specific percentage taxes: Banks and financial institutions", "Specific percentage taxes: Common carriers", "Specific percentage taxes: Franchise and Amusement taxes"] },
+                    { id: "tax-3", name: "Transfer Taxes (Estate & Donor's Tax)", weight: 17.14, items: 12, subtopics: ["Estate tax: Gross estate inclusions and valuation", "Estate tax Deductions: Standard deduction", "Estate tax Deductions: Family home and Net share of surviving spouse", "Estate tax credit computation", "Donor's tax: Gross gifts and Exemptions", "Donor's tax: Cumulation rule over calendar year", "Donor's tax: 6% rate rule application", "Valuation of property for transfer taxes"] },
+                    { id: "tax-4", name: "Principles of Taxation", weight: 11.43, items: 8, subtopics: ["Inherent powers of the state: Police, Eminent Domain, Taxation", "Situs of taxation rules", "Double taxation: Direct vs indirect", "Tax evasion vs tax avoidance concepts", "Organization and functions of the Bureau of Internal Revenue (BIR)", "Sources and construction of tax laws"] },
+                    { id: "tax-5", name: "Tax Remedies & Administration", weight: 11.43, items: 8, subtopics: ["Assessment process: Letter of Authority (LOA) and LN", "Assessment process: PAN, FAN, FDDA", "Collection remedies: Distraint and Levy", "Collection remedies: Tax lien and Compromise", "Protests: Reconsideration vs Reinvestigation", "Appeals process to the Court of Tax Appeals (CTA)", "Prescriptive periods for assessment", "Prescriptive periods for collection"] },
+                    { id: "tax-6", name: "Preferential Taxation / Incentives", weight: 11.43, items: 8, subtopics: ["BOI and PEZA incentives overview", "Income Tax Holiday (ITH) rules", "Special Corporate Income Tax (SCIT)", "Enhanced Deductions application", "CREATE MORE Act: Rationalization of incentives", "BMBE Act privileges", "Privileges under Senior Citizens Act", "Privileges under Magna Carta for PWDs"] },
+                    { id: "tax-7", name: "Local Taxation (LBT & RPT)", weight: 5.73, items: 4, subtopics: ["Local Business Tax (LBT) rules, scope, and rates", "Real Property Tax (RPT): Assessment levels", "Real Property Tax (RPT): Tax rates and exemptions", "Real Property Tax (RPT): Special Education Fund (SEF)", "Community Tax Certificate (CTC) computation for individuals", "Community Tax Certificate (CTC) computation for corporations"] },
+                    { id: "tax-8", name: "Excise Tax", weight: 2.85, items: 2, subtopics: ["Specific vs Ad Valorem taxes concepts", "Goods subject to excise tax: Alcohol and Tobacco", "Goods subject to excise tax: Petroleum and Mineral products", "Goods subject to excise tax: Automobiles and Sweetened beverages", "Services subject to excise tax (Non-essential services)"] },
+                    { id: "tax-9", name: "Documentary Stamp Tax (DST)", weight: 2.85, items: 2, subtopics: ["Nature and purpose of DST", "Rates and base for: Deeds of sale/conveyance of real property", "Rates and base for: Shares of stock (original issue and transfer)", "Rates and base for: Debt instruments (Promissory notes, Bonds)", "Rates and base for: Life insurance policies"] }
+                ]
+            },
+            RFBT: {
+                title: "Regulatory Framework for Business Transactions",
+                items: 100, 
+                topics: [
+                    { id: "rfbt-1", name: "Corporations", weight: 30.00, items: 30, subtopics: ["Revised Corporation Code: Incorporation process and requirements", "Kinds of corporations (Stock, Non-stock, Close, OPC)", "Board of directors/trustees: Qualifications and elections", "Board of directors/trustees: Duties, responsibilities, and liabilities", "Stockholders' rights: Voting, appraisal right, pre-emptive right", "Capital stock concepts (Authorized, Subscribed, Paid-up)", "Dividends declaration rules (Cash, Property, Stock)", "Meetings of directors and stockholders (Requirements, Quorum)", "Dissolution and Liquidation of corporations", "Foreign corporations rules"] },
+                    { id: "rfbt-2", name: "Obligations", weight: 6.00, items: 6, subtopics: ["Sources of obligations (Law, Contracts, Quasi-contracts, Delicts, Quasi-delicts)", "Nature and effects: Fortuitous events and delay (Mora)", "Kinds: Pure, Conditional, With a period", "Kinds: Solidary and Joint obligations", "Kinds: Obligations with a penal clause", "Extinguishment: Payment or performance", "Extinguishment: Condonation, Confusion, Compensation, Novation"] },
+                    { id: "rfbt-3", name: "Contracts", weight: 6.00, items: 6, subtopics: ["Essential requisites of contracts (Consent, Object, Cause)", "Form of contracts requirement", "Reformation of instruments", "Defective contracts: Rescissible contracts", "Defective contracts: Voidable contracts", "Defective contracts: Unenforceable contracts", "Defective contracts: Void/Inexistent contracts"] },
+                    { id: "rfbt-4", name: "Partnerships", weight: 6.00, items: 6, subtopics: ["Essential features and formalities of a partnership", "Kinds of partnerships (General vs Limited) and partners", "Obligations of partners among themselves", "Obligations of partners to third persons", "Sharing of profits and losses rules", "Dissolution, Winding up, and Termination", "Limited partnerships specific rules"] },
+                    { id: "rfbt-5", name: "Anti-Money Laundering Act (AMLA)", weight: 6.00, items: 6, subtopics: ["Covered persons and institutions under AMLA", "Covered transactions (Threshold amounts and periods)", "Suspicious transactions (Identifying red flags)", "Anti-Money Laundering Council (AMLC) functions", "Freezing of monetary instruments and property"] },
+                    { id: "rfbt-6", name: "Cooperatives", weight: 5.00, items: 5, subtopics: ["Cooperative Code: Organization and registration", "Membership types, rights, and requirements", "Board of directors and committees in cooperatives", "Privileges and tax exemptions of cooperatives", "Allocation and distribution of net surplus", "Dissolution of cooperatives"] },
+                    { id: "rfbt-7", name: "Financial Rehabilitation & Insolvency", weight: 5.00, items: 5, subtopics: ["FRIA Overview: Suspension of payments", "Court-supervised rehabilitation procedures", "Pre-negotiated rehabilitation procedures", "Out-of-court or informal restructuring agreements", "Liquidation proceedings (Voluntary vs Involuntary)"] },
+                    { id: "rfbt-8", name: "Sales", weight: 3.00, items: 3, subtopics: ["Nature and form of the contract of sale", "Obligations of the vendor and vendee", "Warranties: Express and implied (against eviction/hidden defects)", "Remedies of an unpaid seller (possessory lien, stoppage in transitu, resale, rescission)", "Recto Law application (Installment sales of personal property)", "Maceda Law application (Installment sales of real property)"] },
+                    { id: "rfbt-9", name: "Credit Transactions", weight: 3.00, items: 3, subtopics: ["Pledge: Essential requisites, rights, and obligations", "Real Estate Mortgage: Foreclosure and redemption periods", "Chattel Mortgage rules", "Antichresis concept", "Prohibition against pactum commissorium"] },
+                    { id: "rfbt-10", name: "Insurance", weight: 3.00, items: 3, subtopics: ["Insurance Code: Elements of an insurance contract", "Insurable interest rules (Life vs Property insurance)", "Concealment, Representation, and Warranties", "Double insurance and Over-insurance concepts"] },
+                    { id: "rfbt-11", name: "Data Privacy Act", weight: 3.00, items: 3, subtopics: ["General data privacy principles (Transparency, Legitimate purpose, Proportionality)", "Rights of the data subject", "Criteria for lawful processing of personal information", "Data breaches and notification requirements"] },
+                    { id: "rfbt-12", name: "Bouncing Checks (BP 22)", weight: 2.00, items: 2, subtopics: ["Elements of the offense under BP 22", "Evidence of knowledge of insufficient funds", "Duty of the drawer and Notice of dishonor requirement", "Comparison of BP 22 with Estafa under the Revised Penal Code"] },
+                    { id: "rfbt-13", name: "Consumer Protection", weight: 2.00, items: 2, subtopics: ["Consumer Act: Protection against deceptive/unfair sales acts", "Regulations on Price tags, Weights, and measures", "Consumer product quality and safety warranties", "Liability for defective products"] },
+                    { id: "rfbt-14", name: "Philippine Competition Act", weight: 2.00, items: 2, subtopics: ["Anti-competitive agreements (per se violations)", "Abuse of dominant position criteria", "Mergers and acquisitions review thresholds", "Functions of the Philippine Competition Commission (PCC)"] },
+                    { id: "rfbt-15", name: "Government Procurement Law", weight: 2.00, items: 2, subtopics: ["New Government Procurement Act (RA 12009): Scope and coverage", "The standard competitive bidding process", "Modes of alternative procurement", "Bids and Awards Committee (BAC) composition and functions"] },
+                    { id: "rfbt-16", name: "PDIC Law", weight: 2.00, items: 2, subtopics: ["Maximum deposit insurance coverage limits", "Insurable vs non-insurable deposits", "Rules on splitting of deposits", "Process for settlement of claims"] },
+                    { id: "rfbt-17", name: "Secrecy of Bank Deposits", weight: 2.00, items: 2, subtopics: ["Law on Secrecy of Bank Deposits and FCDA overview", "Prohibited acts regarding bank deposits", "Exceptions to the secrecy rule", "Rules on garnishment of bank deposits"] },
+                    { id: "rfbt-18", name: "Truth in Lending Act", weight: 2.00, items: 2, subtopics: ["Required disclosures prior to consummation of credit transactions", "Disclosure of finance charges and effective interest rates", "Penalties for non-compliance with disclosure requirements"] },
+                    { id: "rfbt-19", name: "Intellectual Property Law", weight: 2.00, items: 2, subtopics: ["Patents: Patentable vs non-patentable inventions", "Trademarks: Registrability, infringement, unfair competition", "Copyright: Works covered, economic and moral rights, fair use doctrine"] },
+                    { id: "rfbt-20", name: "Electronic Commerce Act", weight: 2.00, items: 2, subtopics: ["Legal recognition of electronic data messages and documents", "Legal recognition of electronic signatures", "Admissibility of electronic documents as evidence"] },
+                    { id: "rfbt-21", name: "Ease of Doing Business Act", weight: 2.00, items: 2, subtopics: ["Mandated processing times (3, 7, 20 days rule)", "Zero-contact policy implementation", "Citizen's charter requirement", "Rules on automatic approval of pending applications"] },
+                    { id: "rfbt-22", name: "Labor Law", weight: 2.00, items: 2, subtopics: ["Labor Code basics: Four-fold test for employer-employee relationship", "Normal hours of work, Overtime pay, Night shift differential", "Holiday pay and premium pay rules", "Mandatory Leaves (Service Incentive Leave, Maternity, Paternity)"] },
+                    { id: "rfbt-23", name: "Social Security Law", weight: 2.00, items: 2, subtopics: ["Compulsory coverage rules (employers, employees, self-employed)", "Excluded employments from coverage", "Benefits overview (Sickness, Maternity, Retirement, Disability, Death, Funeral)"] }
                 ]
             }
         };
+
+        Object.keys(syllabusData).forEach(subjectKey => {
+            syllabusData[subjectKey].topics.sort((a, b) => b.weight - a.weight);
+        });
 
         const App = () => {
             const [activeSubject, setActiveSubject] = useState('FAR');
             const [subtopicStatus, setSubtopicStatus] = useState({});
             const [expandedTopics, setExpandedTopics] = useState({});
+            
             const [user, setUser] = useState(null);
             const [db, setDb] = useState(null);
             const [isSyncing, setIsSyncing] = useState(false);
+            const [appId, setAppId] = useState('cpale-tracker-default');
+            const [authError, setAuthError] = useState(null);
 
             useEffect(() => {
                 if (!window.firebaseApp || !window.firebaseAuth || !window.firebaseDb) return;
+
                 try {
                     const app = window.firebaseApp;
                     const auth = window.firebaseAuth.authInstance;
                     const firestoreDb = window.firebaseDb.dbInstance;
                     setDb(firestoreDb);
 
-                    window.firebaseAuth.signInAnonymously(auth).catch(err => console.error("Auth error:", err));
-                    const unsubscribeAuth = window.firebaseAuth.onAuthStateChanged(auth, u => setUser(u));
+                    window.firebaseAuth.signInAnonymously(auth).catch((error) => {
+                        console.error("Auth error:", error);
+                        setAuthError("Failed to connect");
+                    });
+
+                    const unsubscribeAuth = window.firebaseAuth.onAuthStateChanged(auth, (currentUser) => {
+                        setUser(currentUser);
+                    });
+
                     return () => unsubscribeAuth();
-                } catch (e) {
-                    console.error("Init error:", e);
+                } catch (error) {
+                    console.error("Firebase init error:", error);
                 }
             }, []);
 
+            // Real-time live synchronization using onSnapshot
             useEffect(() => {
                 if (!db) {
                     const saved = localStorage.getItem('cpaleProgressLocal');
@@ -98,34 +220,41 @@
                 }
 
                 setIsSyncing(true);
-                const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
+                const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
                 
-                const unsubscribe = window.firebaseDb.onSnapshot(docRef, docSnap => {
+                const unsubscribeSnapshot = window.firebaseDb.onSnapshot(docRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setSubtopicStatus(docSnap.data().status || {});
                     }
                     setIsSyncing(false);
-                }, err => {
-                    console.error("Sync error:", err);
+                }, (error) => {
+                    console.error("Sync error:", error);
                     setIsSyncing(false);
                 });
 
-                return () => unsubscribe();
-            }, [db]);
+                return () => unsubscribeSnapshot();
+            }, [db, appId]);
+
+            useEffect(() => {
+                if (syllabusData[activeSubject] && syllabusData[activeSubject].topics.length > 0) {
+                    setExpandedTopics({ [syllabusData[activeSubject].topics[0].id]: true });
+                }
+            }, [activeSubject]);
 
             const toggleSubtopic = async (topicId, subtopicIndex) => {
                 const key = `${topicId}-${subtopicIndex}`;
                 const newStatus = { ...subtopicStatus, [key]: !subtopicStatus[key] };
                 setSubtopicStatus(newStatus);
+                
                 localStorage.setItem('cpaleProgressLocal', JSON.stringify(newStatus));
 
                 if (db) {
                     setIsSyncing(true);
                     try {
-                        const docRef = window.firebaseDb.doc(db, 'trackers', 'SHARED_TRACKER_ID');
+                        const docRef = window.firebaseDb.doc(db, 'artifacts', appId, 'users', 'SHARED_TRACKER_ID', 'progress', 'trackerState');
                         await window.firebaseDb.setDoc(docRef, { status: newStatus }, { merge: true });
-                    } catch (e) {
-                        console.error("Save error:", e);
+                    } catch (error) {
+                        console.error("Error saving progress:", error);
                     } finally {
                         setIsSyncing(false);
                     }
@@ -136,48 +265,253 @@
                 setExpandedTopics(prev => ({ ...prev, [topicId]: !prev[topicId] }));
             };
 
+            const getTopicProgress = (topic) => {
+                if (!topic.subtopics || topic.subtopics.length === 0) return { completed: 0, total: 0, percentage: 0 };
+                let completedCount = 0;
+                topic.subtopics.forEach((_, index) => {
+                    if (subtopicStatus[`${topic.id}-${index}`]) completedCount++;
+                });
+                return {
+                    completed: completedCount,
+                    total: topic.subtopics.length,
+                    percentage: Math.round((completedCount / topic.subtopics.length) * 100)
+                };
+            };
+
+            const getSubjectProgress = (subjectKey) => {
+                const subject = syllabusData[subjectKey];
+                let totalSubtopics = 0;
+                let completedSubtopics = 0;
+
+                subject.topics.forEach(topic => {
+                    if (topic.subtopics) {
+                        totalSubtopics += topic.subtopics.length;
+                        topic.subtopics.forEach((_, index) => {
+                            if (subtopicStatus[`${topic.id}-${index}`]) completedSubtopics++;
+                        });
+                    }
+                });
+
+                if (totalSubtopics === 0) return 0;
+                return Math.round((completedSubtopics / totalSubtopics) * 100);
+            };
+
+            const getPriorityColor = (weight) => {
+                if (weight >= 15) return 'bg-red-500 text-white';
+                if (weight >= 10) return 'bg-orange-500 text-white';
+                if (weight >= 5) return 'bg-yellow-500 text-slate-900';
+                return 'bg-blue-500 text-white';
+            };
+            
+            const getPriorityLabel = (weight) => {
+                if (weight >= 15) return 'Critical Yield';
+                if (weight >= 10) return 'High Yield';
+                if (weight >= 5) return 'Medium Yield';
+                return 'Low Yield';
+            };
+
             return (
-                <div className="min-h-screen flex flex-col p-6 max-w-4xl mx-auto">
-                    <header className="mb-6 flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">CPALE Review Tracker (Fresh Sync)</h1>
-                        <span className="text-xs bg-slate-200 px-3 py-1 rounded">
-                            {isSyncing ? "Syncing..." : user ? "Cloud Connected" : "Local Only"}
-                        </span>
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-slate-900 text-white p-6 shadow-md">
+                        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
+                            <div className="flex items-center gap-3 mb-4 md:mb-0">
+                                <Icons.Book />
+                                <div>
+                                    <h1 className="text-2xl font-bold tracking-tight">CPALE Review Tracker</h1>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-slate-400 text-sm">Target: October 2026</p>
+                                        {isSyncing && <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded animate-pulse">Syncing...</span>}
+                                        {user && !isSyncing && <span className="text-xs bg-green-500/20 text-green-300 px-2 py-0.5 rounded">Saved to Cloud</span>}
+                                        {authError && <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded">Saved Locally Only</span>}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-4 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto justify-start md:justify-end">
+                                {Object.keys(syllabusData).map(key => (
+                                    <div key={key} className="flex flex-col items-center shrink-0">
+                                        <div className="text-xs text-slate-400 font-bold mb-1">{key}</div>
+                                        <div className="w-10 h-10 rounded-full border-4 border-slate-700 flex items-center justify-center relative">
+                                            <svg className="w-full h-full absolute top-0 left-0 -rotate-90" viewBox="0 0 36 36">
+                                                <path
+                                                    className="text-blue-500"
+                                                    strokeDasharray={`${getSubjectProgress(key)}, 100`}
+                                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="4"
+                                                />
+                                            </svg>
+                                            <span className="text-[10px] font-bold relative z-10">{getSubjectProgress(key)}%</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </header>
 
-                    <div className="space-y-4">
-                        {syllabusData.FAR.topics.map((topic, index) => {
-                            const isExpanded = expandedTopics[topic.id];
-                            return (
-                                <div key={topic.id} className="bg-white border rounded-xl p-4 shadow-sm">
-                                    <div className="flex justify-between cursor-pointer font-bold" onClick={() => toggleTopicExpand(topic.id)}>
-                                        <span>{topic.name}</span>
-                                        <span>{isExpanded ? "▼" : "▶"}</span>
-                                    </div>
-                                    {isExpanded && (
-                                        <div className="mt-4 space-y-2 border-t pt-3">
-                                            {topic.subtopics.map((sub, subIdx) => {
-                                                const isChecked = subtopicStatus[`${topic.id}-${subIdx}`] || false;
-                                                return (
-                                                    <div key={subIdx} className="flex items-center gap-3 cursor-pointer" onClick={() => toggleSubtopic(topic.id, subIdx)}>
-                                                        <span className={isChecked ? "text-green-600 font-bold" : "text-slate-400"}>
-                                                            {isChecked ? "☑" : "☐"}
-                                                        </span>
-                                                        <span className={isChecked ? "line-through text-slate-400" : "text-slate-700"}>{sub}</span>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
+                    <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
+                        <aside className="w-full md:w-64 shrink-0">
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden sticky top-6">
+                                <div className="p-4 bg-slate-50 border-b border-slate-200 font-semibold text-slate-700">
+                                    Subjects
                                 </div>
-                            );
-                        })}
-                    </div>
+                                <nav className="flex flex-col">
+                                    {Object.keys(syllabusData).map((key) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => {
+                                                setActiveSubject(key);
+                                                if (syllabusData[key].topics.length > 0) {
+                                                    setExpandedTopics({ [syllabusData[key].topics[0].id]: true });
+                                                }
+                                            }}
+                                            className={`text-left p-4 border-b border-slate-100 transition-colors flex justify-between items-center ${
+                                                activeSubject === key 
+                                                    ? 'bg-blue-50 border-l-4 border-l-blue-600 text-blue-700 font-medium' 
+                                                    : 'hover:bg-slate-50 text-slate-600'
+                                            }`}
+                                        >
+                                            <span>{key}</span>
+                                            <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full font-bold">
+                                                {getSubjectProgress(key)}%
+                                            </span>
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
+                        </aside>
+
+                        <section className="flex-1">
+                            <div className="mb-6">
+                                <h2 className="text-3xl font-bold text-slate-900 mb-2">{syllabusData[activeSubject].title}</h2>
+                                <div className="flex gap-4 text-sm text-slate-500">
+                                    <span className="flex items-center gap-1"><Icons.CheckCircle /> Total Items: {syllabusData[activeSubject].items}</span>
+                                    <span className="flex items-center gap-1"><Icons.BarChart /> Sorted by Exam Weight</span>
+                                </div>
+                                
+                                <div className="mt-4 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div 
+                                        className="bg-blue-600 h-full transition-all duration-500" 
+                                        style={{ width: `${getSubjectProgress(activeSubject)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {syllabusData[activeSubject].topics.map((topic, index) => {
+                                    const progress = getTopicProgress(topic);
+                                    const isExpanded = expandedTopics[topic.id];
+                                    const isFullyComplete = progress.percentage === 100 && progress.total > 0;
+
+                                    return (
+                                        <div key={topic.id} className={`bg-white rounded-xl shadow-sm border transition-all ${isFullyComplete ? 'border-green-300 bg-green-50/30' : 'border-slate-200'}`}>
+                                            <div 
+                                                className="p-5 cursor-pointer hover:bg-slate-50 transition-colors rounded-t-xl"
+                                                onClick={() => toggleTopicExpand(topic.id)}
+                                            >
+                                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                                                    
+                                                    <div className="flex-1 flex gap-3">
+                                                        <div className="mt-1">
+                                                            {isExpanded ? (
+                                                                <Icons.ChevronDown className={`w-5 h-5 ${isFullyComplete ? 'text-green-600' : 'text-slate-400'}`} />
+                                                            ) : (
+                                                                <Icons.ChevronRight className={`w-5 h-5 ${isFullyComplete ? 'text-green-600' : 'text-slate-400'}`} />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-slate-400 font-mono text-sm">#{index + 1}</span>
+                                                                <h3 className={`font-bold text-lg ${isFullyComplete ? 'text-green-800' : 'text-slate-800'}`}>
+                                                                    {topic.name}
+                                                                </h3>
+                                                            </div>
+                                                            
+                                                            <div className="flex flex-wrap gap-2 text-xs mb-3">
+                                                                <span className={`px-2 py-1 rounded-md font-semibold ${getPriorityColor(topic.weight)}`}>
+                                                                    {getPriorityLabel(topic.weight)}
+                                                                </span>
+                                                                <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                                                                    Weight: {topic.weight.toFixed(2)}%
+                                                                </span>
+                                                                <span className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                                                                    Est. Items: {topic.items}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="flex flex-col items-end shrink-0">
+                                                        <div className="text-sm font-semibold mb-1 flex items-center gap-2">
+                                                            {isFullyComplete && <Icons.CheckCircle className="w-4 h-4 text-green-500" />}
+                                                            <span className={isFullyComplete ? 'text-green-600' : 'text-slate-600'}>
+                                                                {progress.completed} / {progress.total} completed
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-32 bg-slate-200 h-2 rounded-full overflow-hidden">
+                                                            <div 
+                                                                className={`h-full transition-all duration-300 ${isFullyComplete ? 'bg-green-500' : 'bg-blue-500'}`}
+                                                                style={{ width: `${progress.percentage}%` }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            {isExpanded && topic.subtopics && (
+                                                <div className="border-t border-slate-100 p-5 bg-slate-50/50 rounded-b-xl">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                                                        {topic.subtopics.map((subtopic, subIdx) => {
+                                                            const isChecked = subtopicStatus[`${topic.id}-${subIdx}`] || false;
+                                                            return (
+                                                                <div 
+                                                                    key={subIdx} 
+                                                                    className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition-colors ${isChecked ? 'bg-green-100/50' : 'hover:bg-slate-100'}`}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        toggleSubtopic(topic.id, subIdx);
+                                                                    }}
+                                                                >
+                                                                    <div className="mt-0.5 shrink-0">
+                                                                        {isChecked ? (
+                                                                            <Icons.CheckSquare className="w-5 h-5 text-green-600" />
+                                                                        ) : (
+                                                                            <Icons.Square className="w-5 h-5 text-slate-400" />
+                                                                        )}
+                                                                    </div>
+                                                                    <span className={`text-sm leading-snug select-none ${isChecked ? 'text-slate-500 line-through' : 'text-slate-700'}`}>
+                                                                        {subtopic}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    </main>
+
+                    <footer className="bg-slate-900 py-6 text-center text-slate-400 text-sm mt-auto">
+                        <p>Based on BOA Resolution No. 30, Series of 2022 (Applicable for May & October 2026 CPALE)</p>
+                        {user ? (
+                            <p className="mt-1 text-green-400">Cloud Sync Active (Shared Tracker Mode)</p>
+                        ) : (
+                            <p className="mt-1 text-yellow-400">Progress saving locally to your current browser.</p>
+                        )}
+                    </footer>
                 </div>
             );
         };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
